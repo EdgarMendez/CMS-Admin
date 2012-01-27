@@ -1,0 +1,40 @@
+/* Special Styles */
+
+/* Home Page
+
+/* News Home
+-------------------------*/
+.news {
+	margin-top:10px;
+	margin-bottom:10px;
+	margin-left:20px;
+	padding: 0px;
+	width: 725px;
+	height:100%;
+	border-right: 1px solid #999999;
+	border-bottom: 1px solid #999999;
+	border-left: 1px solid #999999;
+	float:left;
+	position:relative;
+}
+
+.news h4 {
+	margin: 0px;
+	background: #999999 url(../images/template/bkgd-red.gif) repeat-x;
+	font-size: 11px;
+	color: #FFFFFF;
+	padding-left: 10px;
+	height: 15px;
+	padding-top: 5px;
+	padding-bottom: 5px;
+}
+.news_image {
+	width:160px;
+	height:100%;
+	float:left;
+	}
+.txt_info {
+	float:right;
+	width:550px;
+	margin: 0 10px 0 0;
+	}

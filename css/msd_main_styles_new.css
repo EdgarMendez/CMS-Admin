@@ -1,0 +1,196 @@
+/* MSD Main Template Styles */
+
+@import url("special_new.css");
+
+/* Body
+-------------------------*/
+body {
+	font: 11px/16px Verdana, Arial, Helvetica, sans-serif;
+	color: #333333;
+	background: #FFFFFF url(../images/template/diagnolLines.gif);
+	text-align: center;
+	margin: 0px;
+	padding: 0px;
+	min-width:940px;
+}
+h1 {
+	color: #CC0000;
+	font: bold 16px Arial, Helvetica, sans-serif;
+	margin: 10px 0px 5px;
+}
+.clear {
+	clear: both;
+}
+#container {
+	width: 1000px;
+	text-align: left;
+	background: #FFFFFF url(../images/template/bkgd.gif);
+	margin-left: auto;
+	margin-right: auto;
+}
+
+/* Header
+-------------------------*/
+#head {
+	background: #000000 url(../images/template/bkgd-head.gif) no-repeat;
+	height: 102px;
+	width: 1000px;
+	float: left;
+}
+#searchBar {
+	width: 380px;
+	list-style-type: none;
+	float: right;
+	position: relative;
+	top: 15px;
+	margin: 0px 10px 0px 0px;
+}
+#searchBar li {
+	float: left;
+	margin: 0px 10px 0px 0px;
+	font-size: 9px;
+}
+#searchBar li a {
+	color: #CCCCCC;
+}
+#searchBar li a:hover {
+	color: #FFFFFF;
+}
+li#dealerLocator {
+	font: bold 9px Verdana, sans-serif;
+	background: url(../images/template/bkgd-dealer.gif) no-repeat;
+	height: 14px;
+	text-indent: 10px;
+	white-space: nowrap;
+	width: 120px;
+}
+li#dealerLocator a {
+	color: #333333;
+	text-decoration: none;
+}
+li#dealerLocator a:hover {
+	color: #CC0000;
+}
+
+/* Main Nav
+-------------------------*/
+#mainNav {
+	background: #CC0000 url(../images/template/bkgd-mainNav.gif) no-repeat;
+	height: 26px;
+	width: 1000px;
+	float: left;
+	clear: left;
+}
+#mainNav ul {
+	list-style-type: none;
+	margin: 0 40px 0 0;
+	float: right;
+	text-align: left;
+	padding: 0px;
+}
+#mainNav li {
+	color: #fff;
+	text-align: center;
+	float: left;
+	padding: 0px;
+	margin: 0px;
+	font: bold 11px Verdana, Arial, Helvetica, sans-serif;
+	border-top: none;
+	border-right: none;
+	border-bottom: none;
+	border-left: none;
+	height: 25px;
+	background: url(../images/template/red_divider.gif) no-repeat left 1px;
+}
+#mainNav li a {
+	color: #fff;
+	text-decoration: none;
+}
+#mainNav li p {
+	margin: 0px;
+	padding: 6px 20px 0px;
+}
+
+#mainNav li a:hover {
+	color: #000000;
+	text-decoration: none;
+}
+
+/* Side Nav 
+-------------------------*/
+#sideNav {
+	width: 185px;
+	float: left;
+	clear: left;
+}
+#sideNav ul.links {
+	margin: 0px 0px 0px 30px;
+	padding: 0px;
+	list-style: none;
+}
+#sideNav .links li {
+	color: #666666;
+	text-transform: uppercase;
+	font-size: 10px;
+	font-weight: bold;
+	list-style: none;
+	padding: 4px 0px 0px 15px;
+	background: #999999 url(../images/template/bkgd-sidenav.gif) no-repeat;
+	height: 21px;
+}
+#sideNav .links li a {
+	color: #ffffff;
+	text-decoration: none;
+}
+#sideNav .links li a:hover {
+	color: #000000;
+}
+#sideNav h6.navTitle {
+	background: url(../images/template/sidenav_arrow1_se.gif) no-repeat 36px 5px;
+	letter-spacing: 1px;
+	font: normal 9px Verdana, Arial, Helvetica, sans-serif;
+	padding-left: 70px;
+	padding-top: 7px;
+	color: #666666;
+	margin: 0px;
+	height: 18px;
+}
+
+/* Content 
+-------------------------*/
+#banner {
+	width: 770px;
+	height:200px;
+	background-image:url(../images/topbanner.jpg);
+	background-repeat:no-repeat;
+	background-color:#333333;
+	float: left;
+}
+.content {
+	width: 770px;
+	height:100%;
+	float: left;
+	position:relative;
+}
+
+/* Footer 
+-------------------------*/
+#footer {
+	background: #000000 url(../images/template/bkgd-footer.gif) no-repeat;
+	height: 45px;
+	text-align: center;
+	clear: both;
+	width: 1000px;
+	margin: 0px;
+	padding: 0px;
+}
+#footer p {
+	color: #FFFFFF;
+	padding: 0px;
+	margin: 0px;
+	position: relative;
+	top: 2px;
+}
+#footer p a {
+	color: #FFFFFF;
+}
