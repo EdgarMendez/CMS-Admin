@@ -49,7 +49,7 @@ Partial Class admin
         Return (arr(0).Trim())
     End Function
 
-    Private Sub ReplaceInstructions(ByVal productFolder As String, ByVal instructionsFolder as String)
+    Private Sub ReplaceInstructions(ByVal productFolder As String, ByVal instructionsFolder As String)
         Dim contentAPI As New Ektron.Cms.Framework.Core.Content.Content()
         Dim oXMLDoc As New XmlDocument
         Dim oXMLNodeList As XmlNodeList
@@ -58,6 +58,7 @@ Partial Class admin
         Dim messLog As New MessageLogger("/inetpub/MSDIgnitionV8_Staging/logs/instructionslog.txt")
 
         Dim criteriaInstructions As New Ektron.Cms.Common.Criteria(Of ContentProperty)
+        Dim criteriaGroupInstructions As New CriteriaFilterGroup(Of ContentProperty)
         Dim listInstructions As System.Collections.Generic.List(Of ContentData)
         Dim instructionData As ContentData
 
@@ -77,8 +78,14 @@ Partial Class admin
                 root = oXMLDoc.DocumentElement
 
                 criteriaInstructions.Filters.Clear()
-                criteriaInstructions.AddFilter(ContentProperty.Title, CriteriaFilterOperator.StartsWith, getProductNumber(productData.Title))
+
+                criteriaGroupInstructions.AddFilter(ContentProperty.Title, CriteriaFilterOperator.EqualTo, getProductNumber(productData.Title))
+                criteriaGroupInstructions.AddFilter(ContentProperty.Title, CriteriaFilterOperator.EqualTo, getProductNumber(productData.Title) & "_")
+                criteriaGroupInstructions.Condition = LogicalOperation.Or
+
+                criteriaInstructions.FilterGroups.Add(criteriaGroupInstructions)
                 criteriaInstructions.AddFilter(ContentProperty.FolderName, CriteriaFilterOperator.EqualTo, instructionsFolder)
+                criteriaInstructions.Condition = LogicalOperation.And
 
                 listInstructions = contentAPI.GetList(criteriaInstructions)
 
@@ -113,12 +120,12 @@ Partial Class admin
 
                         newInstructions.AppendChild(anchor)
                         root("product").AppendChild(newInstructions)
-						messLog.LogMessage(productData.Title & " -> " & instructionData.Title & Environment.NewLine)
+                        messLog.LogMessage(productData.Title & " -> " & instructionData.Title & Environment.NewLine)
                     Next
 
                     productData.Html = root.OuterXml
                     contentAPI.Update(productData)
-                    
+
 
                 End If
             Next
@@ -637,5 +644,5 @@ Partial Class admin
         'End Try
     End Sub
 
-    
+
 End Class
