@@ -41,12 +41,29 @@ Partial Class admin
 
 
     Protected Sub btnInstructions_Click(ByVal sender As Object, ByVal e As System.EventArgs) Handles btnInstructions.Click
-        ReplaceInstructions("RPM Timing Controls", "instructions01182012")
+
+        'ReplaceInstructions("Accessories", "instructions01182012")
+        'ReplaceInstructions("Advance Power Systems", "instructions01182012")
+        'ReplaceInstructions("Coils", "instructions01182012")
+        'ReplaceInstructions("Crank Triggers", "instructions01182012")
+        'ReplaceInstructions("Distributors", "instructions01182012")
+        'ReplaceInstructions("Fuel", "instructions01182012")
+        'ReplaceInstructions("Ignitions", "instructions01182012")
+        'ReplaceInstructions("New Products", "instructions01182012")
+        'ReplaceInstructions("RPM Timing Controls", "instructions01182012")
+        'ReplaceInstructions("Spark Plug Wires", "instructions01182012")
+        'ReplaceInstructions("Tools", "instructions01182012")
+
     End Sub
 
     Private Function getProductNumber(ByVal productTitle As String) As String
         Dim arr As String() = productTitle.Split("-")
         Return (arr(0).Trim())
+    End Function
+
+    Private Function getProductNumberUnderscore(ByVal productTitle As String) As String
+        Dim arr As String() = productTitle.Split("-")
+        Return (arr(0).Trim() & "_")
     End Function
 
     Private Sub ReplaceInstructions(ByVal productFolder As String, ByVal instructionsFolder As String)
@@ -55,10 +72,12 @@ Partial Class admin
         Dim oXMLNodeList As XmlNodeList
         Dim oXMLNode As XmlNode
         Dim root As XmlNode
-        Dim messLog As New MessageLogger("/inetpub/MSDIgnitionV8_Staging/logs/instructionslog.txt")
+        Dim messLog As New MessageLogger("C:\Inetpub\MSDIgnitionV8_Staging\logs\" & productFolder)
 
         Dim criteriaInstructions As New Ektron.Cms.Common.Criteria(Of ContentProperty)
         Dim criteriaGroupInstructions As New CriteriaFilterGroup(Of ContentProperty)
+        Dim criteriaGroupInstructionsFolder As New CriteriaFilterGroup(Of ContentProperty)
+
         Dim listInstructions As System.Collections.Generic.List(Of ContentData)
         Dim instructionData As ContentData
 
@@ -66,10 +85,17 @@ Partial Class admin
         Dim listProducts As New System.Collections.Generic.List(Of ContentData)
         Dim productData As ContentData
 
-        'criteriaProducts.AddFilter(ContentProperty.Title, CriteriaFilterOperator.StartsWith, "8963 ")
-        'criteriaProducts.AddFilter(ContentProperty.FolderName, CriteriaFilterOperator.EqualTo, "RPM Timing Controls")
+        'For testing purposes
+        'criteriaProducts.AddFilter(ContentProperty.Title, CriteriaFilterOperator.StartsWith, "8468")
+        'criteriaProducts.AddFilter(ContentProperty.DateModified, CriteriaFilterOperator.LessThan, "1/30/2012")
 
         criteriaProducts.AddFilter(ContentProperty.FolderName, CriteriaFilterOperator.EqualTo, productFolder)
+        criteriaProducts.AddFilter(ContentProperty.Type, CriteriaFilterOperator.EqualTo, Ektron.Cms.Common.EkEnumeration.CMSContentType.Content)
+
+        criteriaProducts.PagingInfo = New Ektron.Cms.PagingInfo(500)
+        criteriaProducts.OrderByField = ContentProperty.Title
+
+
         listProducts = contentAPI.GetList(criteriaProducts)
         Try
             For Each productData In listProducts
@@ -78,15 +104,21 @@ Partial Class admin
                 root = oXMLDoc.DocumentElement
 
                 criteriaInstructions.Filters.Clear()
+                criteriaInstructions.FilterGroups.Clear()
+                criteriaGroupInstructions.Filters.Clear()
+                criteriaGroupInstructionsFolder.Filters.Clear()
 
                 criteriaGroupInstructions.AddFilter(ContentProperty.Title, CriteriaFilterOperator.EqualTo, getProductNumber(productData.Title))
-                criteriaGroupInstructions.AddFilter(ContentProperty.Title, CriteriaFilterOperator.EqualTo, getProductNumber(productData.Title) & "_")
+                criteriaGroupInstructions.AddFilter(ContentProperty.Title, CriteriaFilterOperator.StartsWith, getProductNumberUnderscore(productData.Title))
                 criteriaGroupInstructions.Condition = LogicalOperation.Or
 
+                criteriaGroupInstructionsFolder.AddFilter(ContentProperty.FolderName, CriteriaFilterOperator.EqualTo, instructionsFolder)
+
                 criteriaInstructions.FilterGroups.Add(criteriaGroupInstructions)
-                criteriaInstructions.AddFilter(ContentProperty.FolderName, CriteriaFilterOperator.EqualTo, instructionsFolder)
+                criteriaInstructions.FilterGroups.Add(criteriaGroupInstructionsFolder)
                 criteriaInstructions.Condition = LogicalOperation.And
 
+                criteriaInstructions.PagingInfo = New PagingInfo(2000)
                 listInstructions = contentAPI.GetList(criteriaInstructions)
 
                 'Delete previous nodes only if we find new ones
@@ -97,30 +129,33 @@ Partial Class admin
                     Next
 
                     For Each instructionData In listInstructions
-                        Dim newInstructions As XmlNode
-                        Dim anchor As XmlNode
-                        Dim aHref As XmlAttribute
-                        Dim aTarget As XmlAttribute
-                        Dim aTitle As XmlAttribute
+                        If (instructionData.Title = getProductNumber(productData.Title)) Or (instructionData.Title.Contains(getProductNumberUnderscore(productData.Title))) Then
+                            Dim newInstructions As XmlNode
+                            Dim anchor As XmlNode
+                            Dim aHref As XmlAttribute
+                            Dim aTarget As XmlAttribute
+                            Dim aTitle As XmlAttribute
 
-                        newInstructions = oXMLDoc.CreateElement("instructions")
-                        aHref = oXMLDoc.CreateAttribute("href")
-                        aTarget = oXMLDoc.CreateAttribute("target")
-                        aTitle = oXMLDoc.CreateAttribute("title")
-                        anchor = oXMLDoc.CreateElement("a")
+                            newInstructions = oXMLDoc.CreateElement("instructions")
+                            aHref = oXMLDoc.CreateAttribute("href")
+                            aTarget = oXMLDoc.CreateAttribute("target")
+                            aTitle = oXMLDoc.CreateAttribute("title")
+                            anchor = oXMLDoc.CreateElement("a")
 
-                        aHref.Value = instructionData.Quicklink
-                        aTarget.Value = "_blank"
-                        aTitle.Value = instructionData.Title
+                            aHref.Value = instructionData.Quicklink
+                            aTarget.Value = HREF_TARGET_BLANK
+                            aTitle.Value = instructionData.Title
 
-                        anchor.Attributes.Append(aHref)
-                        anchor.Attributes.Append(aTarget)
-                        anchor.Attributes.Append(aTitle)
-                        anchor.InnerText = instructionData.Title
+                            anchor.Attributes.Append(aHref)
+                            anchor.Attributes.Append(aTarget)
+                            anchor.Attributes.Append(aTitle)
+                            anchor.InnerText = instructionData.Title
 
-                        newInstructions.AppendChild(anchor)
-                        root("product").AppendChild(newInstructions)
-                        messLog.LogMessage(productData.Title & " -> " & instructionData.Title & Environment.NewLine)
+                            newInstructions.AppendChild(anchor)
+                            root("product").AppendChild(newInstructions)
+                            messLog.LogMessage(productData.Title & " -> " & instructionData.Title)
+                        End If
+
                     Next
 
                     productData.Html = root.OuterXml
@@ -130,7 +165,7 @@ Partial Class admin
                 End If
             Next
         Catch e As Exception
-            messLog.LogMessage(e.Message)
+            messLog.LogMessage(productData.Title & " - " & e.Message)
         End Try
 
 
