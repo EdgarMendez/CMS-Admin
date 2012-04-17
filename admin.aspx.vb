@@ -41,7 +41,7 @@ Partial Class admin
 
 
     Protected Sub btnInstructions_Click(ByVal sender As Object, ByVal e As System.EventArgs) Handles btnInstructions.Click
-
+        UpdatePrice("9344", 3.65)
         'ReplaceInstructions("Accessories", "instructions01182012")
         'ReplaceInstructions("Advance Power Systems", "instructions01182012")
         'ReplaceInstructions("Coils", "instructions01182012")
@@ -55,6 +55,61 @@ Partial Class admin
         'ReplaceInstructions("Tools", "instructions01182012")
 
     End Sub
+
+    Private Sub DeleteTaxRegion(ByVal RegionID As Integer)
+        Dim taxAPI As New TaxApi
+        Dim taxCriteria As New Criteria(Of TaxRateProperty)
+
+        Dim listTax As System.Collections.Generic.List(Of TaxRateData)
+        Dim taxData As TaxRateData
+
+        taxCriteria.AddFilter(TaxRateProperty.RegionId, CriteriaFilterOperator.EqualTo, "44")
+
+        listTax = taxAPI.GetList(taxCriteria)
+
+        For Each taxData In listTax
+            taxAPI.Delete(taxData.Id)
+        Next
+    End Sub
+    Private Function UpdatePrice(ByVal partnumber As String, ByVal price As Decimal) As Boolean
+        Dim messLogger As New MessageLogger(HttpContext.Current.Server.MapPath(LOG_PATH))
+        Dim CURRENCY_USD As Integer = 840
+        Try
+            errorMessage.Text = errorMessage.Text & "<BR>"
+
+            Dim catalogAPI As New Ektron.Cms.Commerce.CatalogEntryApi
+            Dim criteriaPrice As New Ektron.Cms.Common.Criteria(Of EntryProperty)
+
+            Dim listPrice As System.Collections.Generic.List(Of EntryData)
+            Dim PriceData As EntryData
+
+
+            'For testing purposes
+            'criteriaPrice.AddFilter(ContentProperty.Title, CriteriaFilterOperator.StartsWith, "8468")
+            'criteriaPrice.AddFilter(ContentProperty.DateModified, CriteriaFilterOperator.LessThan, "1/30/2012")
+
+            criteriaPrice.AddFilter(Ektron.Cms.Commerce.EntryProperty.Sku, CriteriaFilterOperator.EqualTo, partnumber)
+            
+            listPrice = catalogAPI.GetList(criteriaPrice)
+
+            For Each PriceData In listPrice
+                'PriceData.Pricing.RemoveAllTiers()
+                PriceData = catalogAPI.GetItemEdit(PriceData.Id, 1033, True)
+                PriceData.Pricing = New PricingData(840, price, PriceData.Pricing.CurrencyPricelist(0).ListPrice)
+                catalogAPI.UpdateAndPublish(PriceData)
+            Next
+            'ToDo: Log success
+
+            UpdatePrice = True
+
+        Catch ex As Exception
+            errorMessage.Text = ex.Message
+            messLogger.LogMessage("UpdateProduct - " & "PartNumber:" & partnumber & " - " & ex.Message)
+            UpdatePrice = False
+        End Try
+
+        Return (UpdatePrice)
+    End Function
 
     Private Function getProductNumber(ByVal productTitle As String) As String
         Dim arr As String() = productTitle.Split("-")

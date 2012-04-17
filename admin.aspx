@@ -1,4 +1,5 @@
 <%@Page Language="VB" Debug="true" MasterPageFile="MSDAdmin.master" AutoEventWireup="false" CodeFile="admin.aspx.vb" Inherits="admin" title="Admin Page" %>
+<%@Register Assembly="ektron.cms.controls" Namespace="ektron.cms.controls" TagPrefix="CMS"  %>
 <asp:Content ID="Content1" ContentPlaceHolderID="cphMainContent" Runat="Server">
      <form id="form1" runat="server">    
         XML File:<br />
@@ -22,6 +23,7 @@
          <asp:Label ID="errorMessage" runat="server" Font-Bold="True" ForeColor="Maroon"></asp:Label>
          <asp:Label ID="logOutput" runat="server" />
          </form>
-        
+    
+    
 </asp:Content>
 
