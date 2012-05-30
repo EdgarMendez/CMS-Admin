@@ -39,9 +39,147 @@ Partial Class admin
     'Const UPLOADED_FILES_PATH As String = "/MSDCMSv1/uploadedfiles/MSDIgnitioncom/Products/Ignitions/"
     'Const UPLOADED_IMAGES_PATH As String = "/MSDCMSv1/uploadedimages/MSDIgnitioncom/Products/Ignitions/"
 
+    Private Sub GetECommerceOrders()
+        Dim messLogger As New MessageLogger(HttpContext.Current.Server.MapPath(LOG_PATH))
+        Dim OrderAPI As New OrderApi
+        Dim AddressAPI As New AddressApi
+
+        Dim orderCriteria As New Criteria(Of OrderProperty)
+        Dim sb As New StringBuilder
+
+        Dim listOrder As System.Collections.Generic.List(Of OrderData)
+        Dim myOrderData As OrderData
+        Dim myOrderPartData As OrderPartData
+        Dim myOrderLineData As OrderLineData
+        Dim myBillingData As AddressData
+        Dim myShippingData As AddressData
+
+        orderCriteria.AddFilter(OrderProperty.Id, CriteriaFilterOperator.GreaterThan, 4294967762)
+
+        listOrder = OrderAPI.GetList(orderCriteria)
+
+        For Each myOrderData In listOrder
+            'Get shipping and billing info
+            myBillingData = AddressAPI.GetItem(myOrderData.Customer.BillingAddressId)
+            myShippingData = AddressAPI.GetItem(myOrderData.Customer.ShippingAddressId)
+
+            With myOrderData
+                'Div Container Start
+                sb.AppendLine("<div style='page-break-before:always; page-break-after:always'>")
+                sb.AppendLine("Customer ID " & .Customer.Id & "<br />")
+                sb.AppendLine("Order Number " & .Id & "<br />")
+                sb.AppendLine("Order Date " & .DateCreated & "<br />")
+                sb.AppendLine("<br />")
+            End With
+
+            sb.AppendLine("<table width='100%' border=1>")
+            'First Line
+            sb.AppendLine("<tr>")
+            sb.AppendLine("<td>")
+            sb.AppendLine("Ship To")
+            sb.AppendLine("</td>")
+            sb.AppendLine("<td>")
+            sb.AppendLine("Bill To")
+            sb.AppendLine("</td>")
+            sb.AppendLine("</tr>")
+
+            'Order details
+            sb.AppendLine("<tr>")
+            sb.AppendLine("<td>")
+            'sb.AppendLine(.Customer.FirstName & " " & .Customer.LastName)
+            sb.AppendLine(myShippingData.Name & "<br />")
+            sb.AppendLine(myShippingData.Company & "<br />")
+            sb.AppendLine(myShippingData.AddressLine1 & "<br />")
+            sb.AppendLine(myShippingData.AddressLine2 & "<br />")
+            sb.AppendLine(myShippingData.City & "<br />")
+            sb.AppendLine(myShippingData.Region.Name & "<br />")
+            sb.AppendLine(myShippingData.Country.Name & "<br />")
+            sb.AppendLine(myShippingData.PostalCode & "<br />")
+            sb.AppendLine(myShippingData.Phone & "<br />")
+            sb.AppendLine("</td>")
+
+            sb.AppendLine("<td>")
+            sb.AppendLine(myBillingData.Name & "<br />")
+            sb.AppendLine(myBillingData.Company & "<br />")
+            sb.AppendLine(myBillingData.AddressLine1 & "<br />")
+            sb.AppendLine(myBillingData.AddressLine2 & "<br />")
+            sb.AppendLine(myBillingData.City & "<br />")
+            sb.AppendLine(myBillingData.Region.Name & "<br />")
+            sb.AppendLine(myBillingData.Country.Name & "<br />")
+            sb.AppendLine(myBillingData.PostalCode & "<br />")
+            sb.AppendLine(myBillingData.Phone & "<br />")
+
+            sb.AppendLine("</td>")
+            sb.AppendLine("</tr>")
+            sb.AppendLine("</table>")
+
+
+            'messLogger.LogMessage(myOrderData.Customer.FirstName & "--" & myOrderData.Parts.Item(0).Lines.Item(0).ProductTitle)
+            'Description
+            sb.AppendLine("<table width='100%' border=1")
+            sb.AppendLine("<tr>")
+            sb.AppendLine("<td>")
+            sb.AppendLine("Description")
+            sb.AppendLine("</td>")
+            sb.AppendLine("<td>")
+            sb.AppendLine("Quantity")
+            sb.AppendLine("</td>")
+            sb.AppendLine("<td>")
+            sb.AppendLine("Sale price")
+            sb.AppendLine("</td>")
+            sb.AppendLine("<td>")
+            sb.AppendLine("Total")
+            sb.AppendLine("</td>")
+            sb.AppendLine("</tr>")
+
+            Dim myOrderDataDetails As OrderData = OrderAPI.GetItem(myOrderData.Id)
+            For Each myOrderPartData In myOrderDataDetails.Parts
+                For Each myOrderLineData In myOrderPartData.Lines
+                    sb.AppendLine("<tr>")
+                    sb.AppendLine(String.Format("<td>{0}</td>", myOrderLineData.ProductTitle))
+                    sb.AppendLine(String.Format("<td>{0}</td>", myOrderLineData.Quantity))
+                    sb.AppendLine(String.Format("<td>{0:C}</td>", myOrderLineData.PriceEach))
+                    sb.AppendLine(String.Format("<td>{0:C}</td>", myOrderLineData.PriceTotal))
+                    sb.AppendLine("</tr>")
+                Next
+            Next
+            sb.AppendLine("<tr>")
+            sb.AppendLine("<td></td><td></td>")
+            sb.AppendLine("<td>Subtotal</td>")
+            sb.AppendLine(String.Format("<td>{0:C}</td>", myOrderDataDetails.Subtotal))
+            sb.AppendLine("</tr>")
+
+            sb.AppendLine("<tr>")
+            sb.AppendLine("<td></td><td></td>")
+            sb.AppendLine("<td>Tax</td>")
+            sb.AppendLine(String.Format("<td>{0:C}</td>", myOrderDataDetails.TaxTotal))
+            sb.AppendLine("</tr>")
+
+            sb.AppendLine("<tr>")
+            sb.AppendLine("<td></td><td></td>")
+            sb.AppendLine("<td>Shipping</td>")
+            sb.AppendLine(String.Format("<td>{0:C}</td>", myOrderDataDetails.ShippingTotal))
+            sb.AppendLine("</tr>")
+
+            sb.AppendLine("<tr>")
+            sb.AppendLine("<td></td><td></td>")
+            sb.AppendLine("<td>Total</td>")
+            sb.AppendLine(String.Format("<td>{0:C}</td>", myOrderDataDetails.OrderTotal))
+            sb.AppendLine("</tr>")
+
+            sb.AppendLine("</table>")
+            'Div Container End
+            sb.AppendLine("</div>")
+        Next
+        
+
+        logOutput.Text = sb.ToString
+        messLogger.LogMessage(sb.ToString)
+    End Sub
 
     Protected Sub btnInstructions_Click(ByVal sender As Object, ByVal e As System.EventArgs) Handles btnInstructions.Click
-        UpdatePrice("9344", 3.65)
+        'UpdatePrice("9344", 3.65)
+        GetECommerceOrders()
         'ReplaceInstructions("Accessories", "instructions01182012")
         'ReplaceInstructions("Advance Power Systems", "instructions01182012")
         'ReplaceInstructions("Coils", "instructions01182012")
@@ -75,7 +213,7 @@ Partial Class admin
         Dim messLogger As New MessageLogger(HttpContext.Current.Server.MapPath(LOG_PATH))
         Dim CURRENCY_USD As Integer = 840
         Try
-            errorMessage.Text = errorMessage.Text & "<BR>"
+            errorMessage.Text = errorMessage.Text & "<br />"
 
             Dim catalogAPI As New Ektron.Cms.Commerce.CatalogEntryApi
             Dim criteriaPrice As New Ektron.Cms.Common.Criteria(Of EntryProperty)
@@ -89,7 +227,7 @@ Partial Class admin
             'criteriaPrice.AddFilter(ContentProperty.DateModified, CriteriaFilterOperator.LessThan, "1/30/2012")
 
             criteriaPrice.AddFilter(Ektron.Cms.Commerce.EntryProperty.Sku, CriteriaFilterOperator.EqualTo, partnumber)
-            
+
             listPrice = catalogAPI.GetList(criteriaPrice)
 
             For Each PriceData In listPrice
@@ -333,7 +471,7 @@ Partial Class admin
             .InsertBefore(oXMLWhite, oXMLElement)
             '''''''''''''''''''
             'Add instructions tree
-            If Not oProduct.Instructions = String.empty Then
+            If Not oProduct.Instructions = String.Empty Then
                 oXMLElement = oXMLDoc.CreateElement("instructions")
                 oXMLElementSubLevel2 = oXMLDoc.CreateElement("a")
                 oXMLElementSubLevel2.InnerText = oProduct.Instructions
@@ -434,9 +572,9 @@ Partial Class admin
                 FileUpload1.SaveAs(filepath & _
                    FileUpload1.FileName)
                 errorMessage.Text = "File name: " & _
-                   FileUpload1.PostedFile.FileName & "<br>" & _
+                   FileUpload1.PostedFile.FileName & "<br />" & _
                    "File Size: " & _
-                   FileUpload1.PostedFile.ContentLength & " kb<br>" & _
+                   FileUpload1.PostedFile.ContentLength & " kb<br />" & _
                    "Content type: " & _
                    FileUpload1.PostedFile.ContentType
             Catch ex As Exception
@@ -554,7 +692,7 @@ Partial Class admin
         metaInfoXML = BuildMetaDataXML(oProduct)
 
         Try
-            errorMessage.Text = errorMessage.Text & "<BR>"
+            errorMessage.Text = errorMessage.Text & "<br />"
             ContentID = api.AddContent(oProduct.ContentTitle, _
                             productComment, _
                             ProductXML, _
@@ -605,7 +743,7 @@ Partial Class admin
         productSummaryHTML = ProductXML
 
         Try
-            errorMessage.Text = errorMessage.Text & "<BR>"
+            errorMessage.Text = errorMessage.Text & "<br />"
 
             ContentData = api.GetContent(oProduct.ContentID, Ektron.Cms.Content.EkContent.ContentResultType.Staged)
             api.CheckOutContent(oProduct.ContentID)
@@ -712,7 +850,7 @@ Partial Class admin
         'metaInfoXML = BuildMetaDataXML(oProduct)
 
         'Try
-        '    errorMessage.Text = errorMessage.Text & "<BR>"
+        '    errorMessage.Text = errorMessage.Text & "<br />"
         '    ContentID = api.AddContent(oProduct.ContentTitle, _
         '                    productComment, _
         '                    ProductXML, _
